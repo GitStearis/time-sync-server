@@ -6,20 +6,19 @@ var path = require('path');
 var PORT = 8081;
 
 var app = express();
-app.use(bodyParser.json()); // for parsing application/json
-app.use('/timesync', timesyncServer.requestHandler);
-
-app.post('/timesync', function(req, res) {
-    var data = {
-        id: (req.body && 'id' in req.body) ? req.body.id : null,
-        result: Date.now()
-    };
-    res.json(data);
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.json());
 
-app.get('/timesync', function(req, res) {
+app.use('/timesync', function(req, res) {
     res.json(Date.now());
 });
 
-app.listen(PORT);
-console.log('Server listening at http://localhost:' + PORT);
+const server = app.listen(process.env.PORT || PORT);
